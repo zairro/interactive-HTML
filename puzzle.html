@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Puzzle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+        .puzzle-piece {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            background-size: 300px 300px;
+            cursor: pointer;
+        }
+        .message {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="puzzle-container" id="puzzle-container"></div>
+    <div class="message" id="message"></div>
+    <script>
+        const images = [
+            'https://placekitten.com/300/300',
+            'https://placedog.net/300/300'
+        ];
+        
+        const puzzleContainer = document.getElementById('puzzle-container');
+        const messageElement = document.getElementById('message');
+        let pieces = [];
+        let shuffledPieces = [];
+        let startTime;
+        let draggedPiece = null;
+        
+        function initializePuzzle() {
+            const imageSrc = images[Math.floor(Math.random() * images.length)];
+            pieces = Array.from({ length: 9 }, (_, i) => ({
+                id: i,
+                imgSrc: imageSrc,
+                position: i
+            }));
+            
+            shuffledPieces = [...pieces].sort(() => Math.random() - 0.5);
+            renderPuzzle();
+            startTime = new Date().getTime();
+        }
+        
+        function renderPuzzle() {
+            puzzleContainer.innerHTML = '';
+            shuffledPieces.forEach(piece => {
+                const pieceElement = document.createElement('div');
+                pieceElement.classList.add('puzzle-piece');
+                pieceElement.style.backgroundImage = `url(${piece.imgSrc})`;
+                pieceElement.style.backgroundPosition = `${-((piece.id % 3) * 100)}px ${-(Math.floor(piece.id / 3) * 100)}px`;
+                pieceElement.draggable = true;
+                pieceElement.dataset.id = piece.id;
+                pieceElement.addEventListener('dragstart', handleDragStart);
+                pieceElement.addEventListener('dragover', handleDragOver);
+                pieceElement.addEventListener('drop', handleDrop);
+                puzzleContainer.appendChild(pieceElement);
+                piece.element = pieceElement;
+            });
+        }
+        
+        function handleDragStart(event) {
+            draggedPiece = event.target;
+        }
+        
+        function handleDragOver(event) {
+            event.preventDefault();
+        }
+        
+        function handleDrop(event) {
+            event.preventDefault();
+            if (event.target.classList.contains('puzzle-piece')) {
+                const draggedPieceId = parseInt(draggedPiece.dataset.id);
+                const droppedPieceId = parseInt(event.target.dataset.id);
+                swapPieces(draggedPieceId, droppedPieceId);
+                renderPuzzle();
+                checkWinCondition();
+            }
+        }
+        
+        function swapPieces(draggedPieceId, droppedPieceId) {
+            const draggedPieceIndex = shuffledPieces.findIndex(piece => piece.id === draggedPieceId);
+            const droppedPieceIndex = shuffledPieces.findIndex(piece => piece.id === droppedPieceId);
+            [shuffledPieces[draggedPieceIndex], shuffledPieces[droppedPieceIndex]] = [shuffledPieces[droppedPieceIndex], shuffledPieces[draggedPieceIndex]];
+        }
+        
+        function checkWinCondition() {
+            if (shuffledPieces.every((piece, index) => piece.position === index)) {
+                messageElement.textContent = 'Congratulations! You unlocked 50% off!';
+            }
+        }
+        
+        initializePuzzle();
+    </script>
+</body>
+</html>
