@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin the Wheel</title>
+    <style>
+        #wheel {
+            border: 2px solid black;
+            border-radius: 50%;
+            width: 300px;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+            transform: rotate(0deg);
+            transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+        .slice {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            clip-path: polygon(100% 0, 100% 100%, 0% 100%);
+        }
+        .slice:nth-child(1) { background-color: #FF5733; transform: rotate(0deg); }
+        .slice:nth-child(2) { background-color: #FFBD33; transform: rotate(45deg); }
+        .slice:nth-child(3) { background-color: #DFFF33; transform: rotate(90deg); }
+        .slice:nth-child(4) { background-color: #75FF33; transform: rotate(135deg); }
+        .slice:nth-child(5) { background-color: #33FF57; transform: rotate(180deg); }
+        .slice:nth-child(6) { background-color: #33FFBD; transform: rotate(225deg); }
+        .slice:nth-child(7) { background-color: #33DFFF; transform: rotate(270deg); }
+        .slice:nth-child(8) { background-color: #3375FF; transform: rotate(315deg); }
+        .slice span {
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-22.5deg);
+            font-size: 20px;
+            font-weight: bold;
+            color: black;
+        }
+        #resultMessage {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Spin the Wheel!</h1>
+        <div id="wheel">
+            <div class="slice"><span>10%</span></div>
+            <div class="slice"><span>20%</span></div>
+            <div class="slice"><span>30%</span></div>
+            <div class="slice"><span>40%</span></div>
+            <div class="slice"><span>50%</span></div>
+            <div class="slice"><span>60%</span></div>
+            <div class="slice"><span>70%</span></div>
+            <div class="slice"><span>80%</span></div>
+        </div>
+        <button id="spinButton">Spin</button>
+        <p id="resultMessage">Congrats! You scored <span id="discount">%</span> off your next order!</p>
+    </div>
+
+    <script>
+        const wheel = document.getElementById('wheel');
+        const resultMessage = document.getElementById('resultMessage');
+        const discountSpan = document.getElementById('discount');
+        const spinButton = document.getElementById('spinButton');
+        const slices = [10, 20, 30, 40, 50, 60, 70, 80];
+
+        spinButton.addEventListener('click', () => {
+            const randomDegree = Math.floor(Math.random() * 360) + 3600; // Ensure at least 10 full rotations
+            wheel.style.transform = `rotate(${randomDegree}deg)`;
+
+            const sliceIndex = Math.floor((randomDegree % 360) / 45);
+            setTimeout(() => {
+                const discount = slices[sliceIndex];
+                discountSpan.textContent = `${discount}%`;
+                resultMessage.style.display = 'block';
+            }, 4000); // Wait for the wheel to stop spinning
+        });
+    </script>
+</body>
+</html>
